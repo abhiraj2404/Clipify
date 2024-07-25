@@ -8,6 +8,7 @@ import Home from "./pages/Home.jsx";
 import SignIn from "./pages/SignIn.jsx";
 import UserProfile from "./pages/UserProfile.jsx";
 import Clipboard from "./pages/Clipboard.jsx";
+import TestPage from "./pages/TestPage.jsx";
 
 function App() {
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ function App() {
           <Route path="/signin" element={<SignIn />} />
           <Route path="/userprofile" element={<UserProfile />} />
           <Route path="/clipboard" element={<Clipboard />} />
+          <Route path="/testpage" element={<TestPage />} />
         </Routes>
       </NextUIProvider>
     </>

@@ -1,8 +1,14 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
-function ClipElement() {
+function ClipElement({ clipName, setClipId, clip }) {
   return (
-    <div className="bg-white px-3 flex items-center hover:bg-gray-100 cursor-pointer border-b border-grey-lighter py-4">
+    <div
+      className="bg-white px-3 flex items-center hover:bg-gray-100 cursor-pointer border-b border-grey-lighter py-4"
+      onClick={() => {
+        setClipId(clip.id);
+      }}
+    >
       <div>
         <svg
           class="w-6 h-6 text-gray-800 dark:text-white"
@@ -24,7 +30,7 @@ function ClipElement() {
       </div>
       <div className="ml-4 flex-1 ">
         <div className="flex items-bottom justify-between ">
-          <p className="text-grey-darkest">Passwords</p>
+          <p className="text-grey-darkest">{clipName}</p>
         </div>
       </div>
     </div>

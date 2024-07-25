@@ -1,25 +1,49 @@
 import React from "react";
 import { useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../firebase";
+import { auth, db } from "../firebase";
 import { Avatar } from "@nextui-org/react";
+import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 
 function UserProfile() {
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
   const [currentUser, setCurrentUser] = React.useState({});
 
   useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
       if (user) {
-        setCurrentUser(user);
+        const userRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userRef);
+
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          console.log("user exists");
+          setCurrentUser({
+            user_name: userData.user_name || "Clipify_User",
+            full_name: userData.full_name || user.displayName,
+            email: userData.email || "",
+            photoURL: userData.photoURL || "",
+          });
+        } else {
+          // Create a new user document if it doesn't exist
+          const newUserData = {
+            user_name: "Clipify_User",
+            full_name: user.displayName,
+            email: user.email,
+            photoURL: user.photoURL,
+          };
+          console.log("user registered as new user");
+          await setDoc(userRef, newUserData);
+          setCurrentUser(newUserData);
+        }
+
         setIsLoggedIn(true);
         console.log(user.displayName);
-        // ...
       } else {
         console.log("notsignedin");
       }
     });
-  }, [isLoggedIn]);
+  }, []);
 
   return (
     <div>
@@ -32,9 +56,15 @@ function UserProfile() {
                 className="w-20 h-20 text-large mx-auto"
               />
               <div>
+                <h2 className="font-bold ">USERNAME : </h2>
+                <p className="border-b-1 border-gray-400">
+                  {currentUser.user_name}
+                </p>
+              </div>
+              <div>
                 <h2 className="font-bold ">NAME : </h2>
                 <p className="border-b-1 border-gray-400">
-                  {currentUser.displayName}
+                  {currentUser.full_name}
                 </p>
               </div>
               <div>

@@ -1,26 +1,99 @@
 import React from "react";
 import { useEffect } from "react";
-import { auth } from "../firebase";
+import { auth, db } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
-import TextMsg from "../components/message/TextMsg";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
+  useDisclosure,
+  Input,
+} from "@nextui-org/react";
 import ClipElement from "../components/clipElement/ClipElement";
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+  addDoc,
+  serverTimestamp,
+} from "firebase/firestore";
+import MessageBox from "../components/message/MessageBox";
 
 function Clipboard() {
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
   const [currentUser, setCurrentUser] = React.useState({});
+  const [clips, setClips] = React.useState([]);
+  const [clipId, setClipId] = React.useState("");
+  const [messageSent, setMessageSent] = React.useState(false);
+  const [clipName, setClipName] = React.useState("");
+
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
       if (user) {
         setCurrentUser(user);
         setIsLoggedIn(true);
-        console.log(user.displayName);
-        // ...
       } else {
         console.log("notsignedin");
       }
     });
-  }, [isLoggedIn]);
+  }, []);
+
+  const dbCall = async () => {
+    let allClips = [];
+    const clipsRef = collection(db, "clips");
+    const clipsQuery = query(clipsRef, where("userID", "==", currentUser?.uid));
+
+    //getting clips that match the current userID
+    await getDocs(clipsQuery).then((querySnapshot) => {
+      querySnapshot.forEach(async (doc) => {
+        let oneClipCollection = { ...doc.data(), id: doc.id, messages: [] };
+
+        //getting messages for each clip
+        const messagesRef = collection(db, "clips", doc.id, "messages");
+        const messagesSnapshot = await getDocs(messagesRef);
+
+        messagesSnapshot.forEach((doc) => {
+          let message = { ...doc.data(), id: doc.id };
+          oneClipCollection.messages.push(message);
+        });
+
+        let alreadyExists = allClips.find(
+          (clip) => clip.id === oneClipCollection.id
+        );
+
+        if (!alreadyExists) {
+          allClips.push(oneClipCollection);
+        }
+
+        setClips(allClips);
+        setMessageSent(false);
+      });
+    });
+  };
+
+  useEffect(() => {
+    if (isLoggedIn == true) {
+      // setClips([]);
+      dbCall();
+    }
+  }, [currentUser, messageSent]);
+
+  const addCollection = async () => {
+    const clipsRef = collection(db, "clips");
+    await addDoc(clipsRef, {
+      clip_name: clipName,
+      createdAt: serverTimestamp(),
+      userID: currentUser.uid,
+    });
+    console.log("collection added");
+    setClipName("");
+  };
 
   return (
     <div>
@@ -31,130 +104,90 @@ function Clipboard() {
               <div className="py-6 h-[80vh] md:w-2/3">
                 <div className="flex border border-grey rounded shadow-lg h-full">
                   <div className="w-1/3 border flex flex-col">
-                    <div className="py-2 px-2 bg-slate-100 font-semibold pl-4 text-lg  border-b border-grey-lighter">
-                      YOUR CLIPS
+                    <div className="py-2 px-2 bg-slate-100 font-semibold pl-4 text-lg  border-b border-grey-lighter flex justify-between">
+                      <span>YOUR CLIPS</span>{" "}
+                      <Button
+                        onPress={onOpen}
+                        size="sm"
+                        className="mr-3"
+                        color="primary"
+                      >
+                        + Add
+                      </Button>
+                      <Modal
+                        isOpen={isOpen}
+                        onOpenChange={onOpenChange}
+                        placement="top-center"
+                      >
+                        <ModalContent>
+                          {(onClose) => (
+                            <>
+                              <ModalHeader className="flex flex-col gap-1">
+                                Add Collection
+                              </ModalHeader>
+                              <ModalBody>
+                                <Input
+                                  autoFocus
+                                  placeholder="Enter your Clip name"
+                                  variant="bordered"
+                                  value={clipName}
+                                  onChange={(e) => setClipName(e.target.value)}
+                                />
+                              </ModalBody>
+                              <ModalFooter>
+                                <Button
+                                  color="danger"
+                                  variant="flat"
+                                  onPress={onClose}
+                                >
+                                  Close
+                                </Button>
+                                <Button
+                                  color="primary"
+                                  onPress={() => {
+                                    onClose();
+                                    addCollection();
+                                    dbCall();
+                                  }}
+                                >
+                                  Create
+                                </Button>
+                              </ModalFooter>
+                            </>
+                          )}
+                        </ModalContent>
+                      </Modal>
                     </div>
 
                     <div className="bg-grey-lighter flex-1 overflow-auto">
-                      <ClipElement />
-                      <ClipElement />
-                    </div>
-                  </div>
-
-                  {/* //clip name */}
-                  <div className="w-2/3 border flex flex-col">
-                    <div className="py-2 px-3 bg-grey-lighter flex flex-row justify-between items-center">
-                      <div className="flex items-center">
-                        <div className="ml-4">
-                          <p className="text-grey-darkest">Passwords</p>
-                        </div>
-                      </div>
-
-                      {/* //svg beside clip name */}
-                      <div className="flex">
-                        <div>
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                            width="24"
-                            height="24"
-                          >
-                            <path
-                              fill="#263238"
-                              fillOpacity=".5"
-                              d="M15.9 14.3H15l-.3-.3c1-1.1 1.6-2.7 1.6-4.3 0-3.7-3-6.7-6.7-6.7S3 6 3 9.7s3 6.7 6.7 6.7c1.6 0 3.2-.6 4.3-1.6l.3.3v.8l5.1 5.1 1.5-1.5-5-5.2zm-6.2 0c-2.6 0-4.6-2.1-4.6-4.6s2.1-4.6 4.6-4.6 4.6 2.1 4.6 4.6-2 4.6-4.6 4.6z"
-                            ></path>
-                          </svg>
-                        </div>
-                        <div className="ml-6">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                            width="24"
-                            height="24"
-                          >
-                            <path
-                              fill="#263238"
-                              fillOpacity=".6"
-                              d="M12 7a2 2 0 1 0-.001-4.001A2 2 0 0 0 12 7zm0 2a2 2 0 1 0-.001 3.999A2 2 0 0 0 12 9zm0 6a2 2 0 1 0-.001 3.999A2 2 0 0 0 12 15z"
-                            ></path>
-                          </svg>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex-1 overflow-auto bg-[#DAD3CC]">
-                      <TextMsg />
-                      <TextMsg />
-                      <TextMsg />
-                    </div>
-
-                    <div>
-                      <form className=" relative">
-                        <div className="flex items-center px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-700">
-                          <button
-                            type="button"
-                            class="inline-flex justify-center text-gray-500 rounded-lg cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600"
-                          >
-                            <svg
-                              class="w-[1.30rem] h-[1.30rem]"
-                              aria-hidden="true"
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 20 18"
-                            >
-                              <path
-                                fill="currentColor"
-                                d="M13 5.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0ZM7.565 7.423 4.5 14h11.518l-2.516-3.71L11 13 7.565 7.423Z"
-                              />
-                              <path
-                                stroke="currentColor"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M18 1H2a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1Z"
-                              />
-                              <path
-                                stroke="currentColor"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M13 5.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0ZM7.565 7.423 4.5 14h11.518l-2.516-3.71L11 13 7.565 7.423Z"
-                              />
-                            </svg>
-                            <span class="sr-only">Upload image</span>
-                          </button>
-                          <input
-                            id="chat"
-                            rows="1"
-                            className="block mx-4 p-2.5 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-0 dark:focus:border-gray-500"
-                            placeholder="Your message..."
+                      {clips.map((clip) => {
+                        return (
+                          <ClipElement
+                            key={clip.id}
+                            clipName={clip.clip_name}
+                            setClipId={setClipId}
+                            clip={clip}
                           />
-                          <button
-                            type="submit"
-                            className="inline-flex justify-center p-2 text-blue-600 rounded-full cursor-pointer hover:bg-blue-100 dark:text-blue-500 dark:hover:bg-gray-600"
-                          >
-                            <svg
-                              className="w-5 h-5 rotate-90 rtl:-rotate-90"
-                              aria-hidden="true"
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="currentColor"
-                              viewBox="0 0 18 20"
-                            >
-                              <path d="m17.914 18.594-8-18a1 1 0 0 0-1.828 0l-8 18a1 1 0 0 0 1.157 1.376L8 18.281V9a1 1 0 0 1 2 0v9.281l6.758 1.689a1 1 0 0 0 1.156-1.376Z" />
-                            </svg>
-                          </button>
-                        </div>
-                      </form>
+                        );
+                      })}
                     </div>
                   </div>
+
+                  {/* message box */}
+                  <MessageBox
+                    clips={clips}
+                    clipId={clipId}
+                    setMessageSent={setMessageSent}
+                  />
                 </div>
               </div>
             </div>
           </div>
         </div>
       ) : (
-        <div>Login to use clipboard</div>
+        <div className="flex flex-col gap-5 justify-center items-center h-[85vh]">
+          <h1 className="text-5xl font-semibold">Login to use Clipboard</h1>
+        </div>
       )}
     </div>
   );
