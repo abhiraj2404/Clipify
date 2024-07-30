@@ -13,7 +13,7 @@ import {
 } from "@nextui-org/react";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "../../firebase";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 {
   /* <button
   onClick={logout}
@@ -28,6 +28,8 @@ function MyNavbar() {
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
   const [currentUser, setCurrentUser] = React.useState({});
   const navigate = useNavigate();
+
+  const location = useLocation();
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
@@ -77,13 +79,16 @@ function MyNavbar() {
         </NavbarBrand>
       </NavbarContent>
       <NavbarContent className="hidden sm:flex gap-4" justify="center">
-        <NavbarItem>
-          <Link color="foreground" href="/">
+        <NavbarItem className="font-semibold">
+          <Link href="/" color={location.pathname == "/" ? "" : "foreground"}>
             Home
           </Link>
         </NavbarItem>
-        <NavbarItem isActive>
-          <Link href="/clipboard" aria-current="page">
+        <NavbarItem className="font-semibold">
+          <Link
+            href="/clipboard"
+            color={location.pathname == "/clipboard" ? "" : "foreground"}
+          >
             Clipboard
           </Link>
         </NavbarItem>

@@ -169,6 +169,7 @@ function Clipboard() {
                             clipName={clip.clip_name}
                             setClipId={setClipId}
                             clip={clip}
+                            clipId={clipId}
                           />
                         );
                       })}
@@ -180,6 +181,7 @@ function Clipboard() {
                     clips={clips}
                     clipId={clipId}
                     setMessageSent={setMessageSent}
+                    setClipId={setClipId}
                   />
                 </div>
               </div>

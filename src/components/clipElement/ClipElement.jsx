@@ -1,9 +1,11 @@
 import React from "react";
 
-function ClipElement({ clipName, setClipId, clip }) {
+function ClipElement({ clipName, setClipId, clip, clipId }) {
   return (
     <div
-      className="bg-white px-3 flex items-center hover:bg-gray-100 cursor-pointer border-b border-grey-lighter py-4"
+      className={`${
+        clip.id == clipId ? "bg-gray-100" : "bg-white"
+      } px-3 flex items-center hover:bg-gray-100 cursor-pointer border-b border-grey-lighter py-4`}
       onClick={() => {
         setClipId(clip.id);
       }}
