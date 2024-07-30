@@ -1,5 +1,4 @@
 import React from "react";
-import { Link } from "react-router-dom";
 
 function ClipElement({ clipName, setClipId, clip }) {
   return (
@@ -11,7 +10,7 @@ function ClipElement({ clipName, setClipId, clip }) {
     >
       <div>
         <svg
-          class="w-6 h-6 text-gray-800 dark:text-white"
+          className="w-6 h-6 text-gray-800 dark:text-white"
           aria-hidden="true"
           xmlns="http://www.w3.org/2000/svg"
           width="24"
@@ -21,9 +20,9 @@ function ClipElement({ clipName, setClipId, clip }) {
         >
           <path
             stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="1.3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="1.3"
             d="M16.153 19 21 12l-4.847-7H3l4.848 7L3 19h13.153Z"
           />
         </svg>

@@ -20,6 +20,7 @@ import {
   where,
   addDoc,
   serverTimestamp,
+  orderBy,
 } from "firebase/firestore";
 import MessageBox from "../components/message/MessageBox";
 
@@ -56,7 +57,8 @@ function Clipboard() {
 
         //getting messages for each clip
         const messagesRef = collection(db, "clips", doc.id, "messages");
-        const messagesSnapshot = await getDocs(messagesRef);
+        const messagesQuery = query(messagesRef, orderBy("time", "asc"));
+        const messagesSnapshot = await getDocs(messagesQuery);
 
         messagesSnapshot.forEach((doc) => {
           let message = { ...doc.data(), id: doc.id };
