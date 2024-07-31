@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import ImageMsg from "./ImageMsg";
 import TextMsg from "./TextMsg";
 import { db, storage } from "../../firebase";
@@ -7,7 +7,6 @@ import {
   addDoc,
   serverTimestamp,
   query,
-  where,
   getDoc,
   getDocs,
   doc,
@@ -31,7 +30,7 @@ import {
   DropdownMenu,
   DropdownItem,
 } from "@nextui-org/react";
-import { Listbox, ListboxItem, cn } from "@nextui-org/react";
+import { cn } from "@nextui-org/react";
 import { DeleteDocumentIcon } from "./DeleteDocumentIcon.jsx";
 import PdfMsg from "./PdfMsg.jsx";
 
@@ -40,11 +39,11 @@ function MessageBox({ clips, clipId, setMessageSent, setClipId }) {
   const [selectedFile, setSelectedFile] = useState();
   const [imageURL, setImageURL] = useState("");
   const filteredClip = clips.filter((clip) => clip.id === clipId);
+  const clipBoxRef = useRef(null);
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const messageHandler = async (e, type, downloadURL) => {
-    console.log("inside messageHandler");
     if (type == "text") {
       if (inputMessage.trim() === "") return;
       const messageRef = collection(db, "clips", clipId, "messages");
@@ -54,7 +53,6 @@ function MessageBox({ clips, clipId, setMessageSent, setClipId }) {
         type_of_msg: "text",
         photoURL: "",
       });
-      console.log("message sent");
       setInputMessage("");
     }
     if (type == "image" || type == "pdf") {
@@ -65,7 +63,6 @@ function MessageBox({ clips, clipId, setMessageSent, setClipId }) {
         type_of_msg: type,
         photoURL: downloadURL,
       });
-      console.log("file sent");
       setImageURL("");
       setSelectedFile();
     }
@@ -142,6 +139,12 @@ function MessageBox({ clips, clipId, setMessageSent, setClipId }) {
     }
   }
 
+  useEffect(() => {
+    if (clipBoxRef.current) {
+      clipBoxRef.current.scrollTop = clipBoxRef.current.scrollHeight;
+    }
+  }, [filteredClip]);
+
   return (
     <>
       {clipId ? (
@@ -197,7 +200,7 @@ function MessageBox({ clips, clipId, setMessageSent, setClipId }) {
             </div>
           </div>
 
-          <div className="flex-1 overflow-auto bg-[#DAD3CC]">
+          <div className="flex-1 overflow-auto bg-[#DAD3CC]" ref={clipBoxRef}>
             {filteredClip[0]?.messages?.length === 0 ? (
               <div
                 class="p-4 mb-4 w-fit mx-auto mt-4 text-sm text-yellow-800 rounded-lg bg-[#FCF4CB] dark:bg-gray-800 dark:text-yellow-300"
