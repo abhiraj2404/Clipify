@@ -106,12 +106,12 @@ function Clipboard() {
               <div className="py-6 h-[80vh] md:w-2/3">
                 <div className="flex border border-grey rounded shadow-lg h-full">
                   <div className="w-1/3 border flex flex-col">
-                    <div className="py-2 px-2 bg-slate-100 font-semibold pl-4 text-lg  border-b border-grey-lighter flex justify-between">
+                    <div className="py-2 px-2 bg-slate-100 font-semibold pl-4 text-lg  border-b border-grey-lighter flex flex-col sm:flex-row justify-between">
                       <span>YOUR CLIPS</span>{" "}
                       <Button
                         onPress={onOpen}
                         size="sm"
-                        className="mr-3"
+                        className="ml-auto sm:mr-3 w-fit"
                         color="primary"
                       >
                         + Add

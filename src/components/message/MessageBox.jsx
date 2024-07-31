@@ -179,7 +179,7 @@ function MessageBox({ clips, clipId, setMessageSent, setClipId }) {
                       key="delete"
                       className="text-danger"
                       color="danger"
-                      description="Permanently delete the file"
+                      description="Permanently delete the clip"
                       startContent={
                         <DeleteDocumentIcon
                           className={cn(
@@ -189,7 +189,7 @@ function MessageBox({ clips, clipId, setMessageSent, setClipId }) {
                         />
                       }
                     >
-                      Delete file
+                      Delete clip
                     </DropdownItem>
                   </DropdownMenu>
                 </Dropdown>

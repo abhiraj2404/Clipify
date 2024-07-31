@@ -48,8 +48,8 @@ function PdfMsg({ message }) {
     <>
       <div className="flex items-start gap-2.5 m-2">
         <div className="flex flex-col gap-1">
-          <div className="flex flex-col w-full max-w-[700px] leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-e-xl rounded-es-xl dark:bg-gray-700">
-            <div className="flex items-start my-2.5 bg-gray-50 dark:bg-gray-600 rounded-xl p-2">
+          <div className="flex flex-col w-full max-w-[200px]  md:max-w-[700px] leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-e-xl rounded-es-xl dark:bg-gray-700">
+            <div className="flex items-start my-2.5 bg-gray-50 dark:bg-gray-600 rounded-xl p-2 overflow-hidden">
               <a href={message.photoURL} target="_blank">
                 <div className="me-2">
                   <span className="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-white pb-2">

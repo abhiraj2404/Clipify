@@ -59,12 +59,12 @@ function MyNavbar() {
       link: "/",
     },
     {
-      name: "Profile",
-      link: "/profile",
-    },
-    {
       name: "Clipboard",
       link: "/clipboard",
+    },
+    {
+      name: "Profile",
+      link: "/userprofile",
     },
   ];
 
@@ -92,9 +92,12 @@ function MyNavbar() {
             Clipboard
           </Link>
         </NavbarItem>
-        <NavbarItem>
-          <Link color="foreground" href="#">
-            Integrations
+        <NavbarItem className="font-semibold">
+          <Link
+            href="/userprofile"
+            color={location.pathname == "/userprofile" ? "" : "foreground"}
+          >
+            Profile
           </Link>
         </NavbarItem>
       </NavbarContent>
@@ -127,13 +130,7 @@ function MyNavbar() {
           <NavbarMenuItem key={`${item}-${index}`}>
             <Link
               onClick={() => setIsMenuOpen(false)}
-              color={
-                index === 2
-                  ? "primary"
-                  : index === menuItems.length - 1
-                  ? "danger"
-                  : "foreground"
-              }
+              color={location.pathname == item.link ? "" : "foreground"}
               className="w-full"
               href={item.link}
               size="lg"
