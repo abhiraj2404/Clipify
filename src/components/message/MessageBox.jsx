@@ -33,6 +33,7 @@ import {
 } from "@nextui-org/react";
 import { Listbox, ListboxItem, cn } from "@nextui-org/react";
 import { DeleteDocumentIcon } from "./DeleteDocumentIcon.jsx";
+import PdfMsg from "./PdfMsg.jsx";
 
 function MessageBox({ clips, clipId, setMessageSent, setClipId }) {
   const [inputMessage, setInputMessage] = useState("");
@@ -56,15 +57,15 @@ function MessageBox({ clips, clipId, setMessageSent, setClipId }) {
       console.log("message sent");
       setInputMessage("");
     }
-    if (type == "image") {
+    if (type == "image" || type == "pdf") {
       const messageRef = collection(db, "clips", clipId, "messages");
       await addDoc(messageRef, {
         textMsg: "",
         time: serverTimestamp(),
-        type_of_msg: "image",
+        type_of_msg: type,
         photoURL: downloadURL,
       });
-      console.log("image sent");
+      console.log("file sent");
       setImageURL("");
       setSelectedFile();
     }
@@ -82,7 +83,9 @@ function MessageBox({ clips, clipId, setMessageSent, setClipId }) {
       getDownloadURL(snapshot.ref).then(async (downloadURL) => {
         console.log("File available at", downloadURL);
         // setImageURL(downloadURL);
-        const type = "image";
+        let type = "";
+        if (selectedFile.type.includes("image")) type = "image";
+        if (selectedFile.type.includes("pdf")) type = "pdf";
         await messageHandler(null, type, downloadURL);
       });
     });
@@ -208,6 +211,8 @@ function MessageBox({ clips, clipId, setMessageSent, setClipId }) {
                   return <TextMsg key={message.id} message={message} />;
                 if (message.type_of_msg === "image")
                   return <ImageMsg key={message.id} message={message} />;
+                if (message.type_of_msg === "pdf")
+                  return <PdfMsg key={message.id} message={message} />;
               })
             )}
           </div>
@@ -215,6 +220,32 @@ function MessageBox({ clips, clipId, setMessageSent, setClipId }) {
           <div>
             {/* image upload button */}
             <div className="flex items-center px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-700">
+              <Button
+                onPress={onOpen}
+                color=""
+                variant="faded"
+                isIconOnly
+                className="mr-2"
+              >
+                <svg
+                  className="w-[24px] h-[24px] text-gray-800 dark:text-white"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="1.8"
+                    d="M5 17v-5h1.5a1.5 1.5 0 1 1 0 3H5m12 2v-5h2m-2 3h2M5 10V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1v6M5 19v1a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-1M10 3v4a1 1 0 0 1-1 1H5m6 4v5h1.375A1.627 1.627 0 0 0 14 15.375v-1.75A1.627 1.627 0 0 0 12.375 12H11Z"
+                  />
+                </svg>
+              </Button>
+
               <Button onPress={onOpen} color="" variant="faded" isIconOnly>
                 <svg
                   className="w-[1.30rem] h-[1.30rem]"
@@ -256,7 +287,7 @@ function MessageBox({ clips, clipId, setMessageSent, setClipId }) {
                         Choose a file
                       </ModalHeader>
                       <ModalBody>
-                        <label for="file-input" className="sr-only">
+                        <label htmlFor="file-input" className="sr-only">
                           Choose file
                         </label>
                         <input
@@ -268,7 +299,12 @@ function MessageBox({ clips, clipId, setMessageSent, setClipId }) {
                         file:me-4
                         file:py-3 file:px-4
                       dark:file:bg-neutral-700 dark:file:text-neutral-400"
-                          onChange={(e) => setSelectedFile(e.target.files[0])}
+                          onChange={(e) => {
+                            setSelectedFile(e.target.files[0]);
+                            console.log(
+                              e.target.files[0].type.includes("image")
+                            );
+                          }}
                         />
                       </ModalBody>
                       <ModalFooter>
