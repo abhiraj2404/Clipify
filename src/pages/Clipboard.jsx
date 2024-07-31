@@ -190,7 +190,9 @@ function Clipboard() {
         </div>
       ) : (
         <div className="flex flex-col gap-5 justify-center items-center h-[85vh]">
-          <h1 className="text-5xl font-semibold">Login to use Clipboard</h1>
+          <h1 className="text-5xl font-semibold text-center">
+            Login to use Clipboard
+          </h1>
         </div>
       )}
     </div>
