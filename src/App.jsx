@@ -9,6 +9,7 @@ import SignIn from "./pages/SignIn.jsx";
 import UserProfile from "./pages/UserProfile.jsx";
 import Clipboard from "./pages/Clipboard.jsx";
 import TestPage from "./pages/TestPage.jsx";
+import { Analytics } from "@vercel/analytics/react";
 
 function App() {
   const navigate = useNavigate();
@@ -25,6 +26,7 @@ function App() {
           <Route path="/testpage" element={<TestPage />} />
         </Routes>
       </NextUIProvider>
+      <Analytics />
     </>
   );
 }
