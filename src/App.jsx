@@ -1,6 +1,6 @@
 import { provider, auth } from "./firebase.js";
 import { signInWithPopup, signOut } from "firebase/auth";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { NextUIProvider } from "@nextui-org/react";
 import MyNavbar from "./components/Navbar/Navbar.jsx";
 import { Route, Routes } from "react-router-dom";
@@ -24,6 +24,10 @@ function App() {
           <Route path="/userprofile" element={<UserProfile />} />
           <Route path="/clipboard" element={<Clipboard />} />
           <Route path="/testpage" element={<TestPage />} />
+          <Route
+            path="/metadata"
+            element={<Navigate to={"../public/metadata.json"} />}
+          />
         </Routes>
       </NextUIProvider>
       <Analytics />

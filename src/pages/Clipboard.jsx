@@ -95,6 +95,7 @@ function Clipboard() {
     });
     console.log("collection added");
     setClipName("");
+    dbCall();
   };
 
   return (

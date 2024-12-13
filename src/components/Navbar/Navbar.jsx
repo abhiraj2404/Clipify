@@ -66,6 +66,7 @@ function MyNavbar() {
       name: "Profile",
       link: "/userprofile",
     },
+    
   ];
 
   return (
